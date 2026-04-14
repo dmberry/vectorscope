@@ -3,11 +3,14 @@ Model session management.
 Holds one loaded model in memory at a time.
 """
 
+from __future__ import annotations
+
 import gc
 import torch
 import psutil
 from transformers import AutoModel, AutoTokenizer, AutoConfig
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -29,7 +32,7 @@ class ModelSession:
     def __init__(self):
         self.model = None
         self.tokenizer = None
-        self.info: ModelInfo | None = None
+        self.info: Optional[ModelInfo] = None
         self.device = self._detect_device()
 
     def _detect_device(self) -> str:
@@ -122,7 +125,7 @@ class ModelSession:
 
         raise ValueError("Could not find embedding table")
 
-    def _get_lm_head_weight(self) -> torch.Tensor | None:
+    def _get_lm_head_weight(self) -> Optional[torch.Tensor]:
         """Get output unembedding (lm_head) weight matrix, if separate."""
         # lm_head is on the parent model (e.g. GPT2LMHeadModel), but we load
         # with AutoModel which gives the base. Try common paths anyway.

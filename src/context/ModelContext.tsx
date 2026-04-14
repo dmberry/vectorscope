@@ -14,6 +14,24 @@ const ModelContext = createContext<ModelContextType | null>(null);
 
 const BACKEND_URL = "http://localhost:8000";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseModelInfo(raw: any): ModelInfo | null {
+  if (!raw) return null;
+  return {
+    modelId: raw.model_id,
+    name: raw.name,
+    architecture: raw.architecture,
+    hiddenSize: raw.hidden_size,
+    numLayers: raw.num_layers,
+    vocabSize: raw.vocab_size,
+    numAttentionHeads: raw.num_attention_heads,
+    weightTied: raw.weight_tied,
+    dtype: raw.dtype,
+    sizeBytes: raw.size_bytes,
+    device: raw.device,
+  };
+}
+
 export function ModelProvider({ children }: { children: React.ReactNode }) {
   const [backendStatus, setBackendStatus] = useState<BackendStatus>({
     status: "disconnected",
@@ -28,8 +46,8 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setBackendStatus({
-          status: data.model ? "connected" : "connected",
-          model: data.model,
+          status: "connected",
+          model: parseModelInfo(data.model),
           device: data.device,
           availableMemoryMb: data.available_memory_mb,
         });
@@ -56,7 +74,7 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
       setBackendStatus({
         status: "connected",
-        model: data.model,
+        model: parseModelInfo(data.model),
         device: data.device,
         availableMemoryMb: data.available_memory_mb,
       });

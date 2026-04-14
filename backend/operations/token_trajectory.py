@@ -4,7 +4,7 @@ Token Trajectory: trace a token's representation through all layers.
 
 import torch
 import numpy as np
-from backend.models.session import session
+from models.session import session
 
 
 def get_token_trajectory(text: str) -> dict:

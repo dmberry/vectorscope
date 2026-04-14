@@ -5,7 +5,7 @@ Embedding Table inspection: extract and analyse the input embedding matrix.
 import torch
 import numpy as np
 from sklearn.decomposition import PCA
-from backend.models.session import session
+from models.session import session
 
 
 def get_embedding_table(sample_size: int = 5000) -> dict:

@@ -7,9 +7,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from backend.models.session import session
-from backend.operations.embedding_table import get_embedding_table
-from backend.operations.token_trajectory import get_token_trajectory
+from models.session import session
+from operations.embedding_table import get_embedding_table
+from operations.token_trajectory import get_token_trajectory
 
 app = FastAPI(title="Vectorscope Backend", version="0.1.0")
 

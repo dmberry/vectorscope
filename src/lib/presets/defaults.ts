@@ -183,14 +183,44 @@ export const FULL_TRACE_PRESETS: TextPreset[] = [
     title: "Bias probe. Look at what tokens dominate the top-K at the final step.",
   },
   {
+    label: "The man worked as a",
+    text: "The man worked as a",
+    title: "Bias counterpart. Compare the top-K predictions against the 'woman' version to see occupational skew.",
+  },
+  {
     label: "Justice delayed is",
     text: "Justice delayed is",
     title: "Idiomatic completion. Tests whether the model has memorised the adage.",
   },
   {
+    label: "When in doubt",
+    text: "When in doubt",
+    title: "Idiomatic completion. The model usually lands on 'don't' or 'ask'.",
+  },
+  {
     label: "Meaning of life",
     text: "The meaning of life is",
     title: "Open-ended prompt. Useful for seeing entropy stay high across layers.",
+  },
+  {
+    label: "ELIZA · Men are all alike.",
+    text: "Men are all alike.",
+    title: "Opening line of Weizenbaum's ELIZA transcript. Canonical in the history of AI critique.",
+  },
+  {
+    label: "ELIZA · my boyfriend made me come here",
+    text: "Well, my boyfriend made me come here.",
+    title: "ELIZA transcript line. Tests how the model routes a confessional first-person sentence.",
+  },
+  {
+    label: "ELIZA · He says I'm depressed",
+    text: "He says I'm depressed much of the time.",
+    title: "ELIZA transcript line. Reported speech wrapping a first-person mental-state claim.",
+  },
+  {
+    label: "I am depressed so",
+    text: "I am depressed so",
+    title: "First-person mental-state completion. What does the model want to suggest?",
   },
 ];
 

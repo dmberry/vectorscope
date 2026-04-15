@@ -54,7 +54,7 @@ export default function HelpDialog() {
                   </div>
                   <div>
                     <dt className="font-semibold">Critique</dt>
-                    <dd className="ml-4">Theoretical instruments. Vocabulary Map now; Isotropy Analysis, Cross-Model Anatomy, Precision Degradation are Phase 4.</dd>
+                    <dd className="ml-4">Theoretical instruments. Vocabulary Map and Isotropy Analysis now; Cross-Model Anatomy and Precision Degradation still pending.</dd>
                   </div>
                 </dl>
               </section>
@@ -101,6 +101,10 @@ export default function HelpDialog() {
                   <div>
                     <dt className="font-semibold">Vocabulary Map</dt>
                     <dd className="ml-4">Global vocabulary topology. Searchable 3D scatter with token highlight, norm distribution.</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold">Isotropy Analysis</dt>
+                    <dd className="ml-4">Per-layer isotropy, mean pairwise cosine, top principal component variance ratios, and pairwise-cosine histograms at first/middle/last layer. Makes Ethayarajh&apos;s anisotropy collapse visible through depth.</dd>
                   </div>
                 </dl>
               </section>

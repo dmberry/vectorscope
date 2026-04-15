@@ -18,6 +18,7 @@ import FullTrace from "@/components/operations/FullTrace";
 import GenerationVector from "@/components/operations/GenerationVector";
 import AttentionInspector from "@/components/operations/AttentionInspector";
 import ManifoldFormation from "@/components/operations/ManifoldFormation";
+import IsotropyAnalysis from "@/components/operations/IsotropyAnalysis";
 import { Clippy } from "@/components/easter-eggs/Clippy";
 
 function VectorscopeApp() {
@@ -58,10 +59,11 @@ function VectorscopeApp() {
             {activeTab === "attention" && <AttentionInspector />}
             {activeTab === "manifold-formation" && <ManifoldFormation />}
             {activeTab === "vocabulary-map" && <VocabularyMap />}
-            {!["embedding-table", "projection-head", "weight-comparison", "token-trajectory", "layer-probe", "full-trace", "generation-vector", "attention", "manifold-formation", "vocabulary-map"].includes(activeTab) && (
+            {activeTab === "isotropy" && <IsotropyAnalysis />}
+            {!["embedding-table", "projection-head", "weight-comparison", "token-trajectory", "layer-probe", "full-trace", "generation-vector", "attention", "manifold-formation", "vocabulary-map", "isotropy"].includes(activeTab) && (
               <div className="card-editorial p-4 text-center">
                 <p className="font-sans text-xs text-slate">
-                  {activeTab} — coming in Phase 3
+                  {activeTab} — coming in a later phase
                 </p>
               </div>
             )}

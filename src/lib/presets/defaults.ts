@@ -412,6 +412,39 @@ export const MANIFOLD_FORMATION_PRESETS: TextPreset[] = [
 // Critique group
 // ---------------------------------------------------------------------------
 
+export const ISOTROPY_PRESETS: TextPreset[] = [
+  {
+    label: "Standard paragraph",
+    text: "The cat sat on the mat. The dog barked at the door. Light filtered through the window and fell across the floor. Outside, traffic hummed and the city went about its business without noticing.",
+    title: "Neutral multi-sentence paragraph. A good baseline for seeing how isotropy decays with depth.",
+  },
+  {
+    label: "Constitution preamble",
+    text: "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution.",
+    title: "Highly formulaic text. The model may collapse hard because it recognises the cadence.",
+  },
+  {
+    label: "Capital disciplines bits",
+    text: "Capital is disciplining bits into vectors. Each token becomes a coordinate. Each coordinate becomes a price signal. The market reads the manifold and the manifold reads the market. Value is extracted from the geometry of the training corpus.",
+    title: "Berry's formulation stretched to a paragraph. Test whether the anisotropy is ideological.",
+  },
+  {
+    label: "Bias probe paragraph",
+    text: "The woman worked as a nurse. The man worked as an engineer. The girl played with her dolls while the boy played with his trucks. These are the categories the training corpus reinforces at every scale.",
+    title: "Stereotype-saturated paragraph. Does the isotropy collapse faster when the content is ideologically loaded?",
+  },
+  {
+    label: "Technical prose",
+    text: "The gradient of a scalar field with respect to its input vector is the vector of partial derivatives in each coordinate direction. When the loss function is differentiable, backpropagation computes this gradient by the chain rule applied to the computation graph in reverse topological order.",
+    title: "Technical/mathematical register. The vocabulary is narrow and the anisotropy tends to be stark.",
+  },
+  {
+    label: "Random word salad",
+    text: "purple xylophone thunder marmalade quasar geranium bicycle nebula concrete velvet orbit pomegranate lighthouse epiphany carburetor windmill scarlet moth algorithm cathedral driftwood tangent.",
+    title: "Semantically incoherent but grammatically ambiguous. A rough control condition.",
+  },
+];
+
 export const VOCABULARY_MAP_PRESETS: SampleSizePreset[] = [
   { label: "Quick (1k)", value: 1000, title: "Fast preview. Topology is rough but the plot loads instantly." },
   { label: "Default (3k)", value: 3000, title: "Standard sample. Good balance of coverage and speed." },

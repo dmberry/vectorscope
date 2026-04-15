@@ -18,6 +18,7 @@ from operations.full_trace import stream_full_trace
 from operations.attention import get_attention_at_layer, get_attention_head_across_layers
 from operations.manifold_formation import get_manifold_formation
 from operations.generation_vector import stream_generation_vector, MAX_GENERATION_TOKENS
+from operations.isotropy import get_isotropy_analysis
 
 app = FastAPI(title="Vectorscope Backend", version="0.1.0")
 
@@ -79,6 +80,10 @@ class GenerationVectorRequest(BaseModel):
     temperature: float = 0.8
     top_p: float = 0.9
     top_k: int = 40
+
+
+class IsotropyRequest(BaseModel):
+    text: str
 
 
 @app.get("/status")
@@ -225,6 +230,17 @@ async def generation_vector(req: GenerationVectorRequest):
         for line in lines:
             yield line
     return StreamingResponse(generate(), media_type="application/x-ndjson")
+
+
+@app.post("/isotropy")
+async def isotropy(req: IsotropyRequest):
+    try:
+        result = await asyncio.to_thread(get_isotropy_analysis, req.text)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

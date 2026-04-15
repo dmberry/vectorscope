@@ -64,6 +64,41 @@ export interface LayerProbeResult {
   norms: number[];
 }
 
+export interface IsotropyLayerStats {
+  layer: number;
+  isotropyScore: number;
+  meanCos: number;
+  meanAbsCos: number;
+  top1VarianceRatio: number;
+  top3VarianceRatio: number;
+  top10VarianceRatio: number;
+  meanNorm: number;
+  stdNorm: number;
+  sampleSize: number;
+}
+
+export interface IsotropyHistogram {
+  layer: number;
+  edges: number[]; // length bins + 1
+  counts: number[]; // length bins
+  mean: number;
+  std: number;
+}
+
+export interface IsotropyResult {
+  inputText: string;
+  tokens: string[];
+  tokenIds: number[];
+  numLayers: number;
+  hiddenSize: number;
+  layers: IsotropyLayerStats[];
+  cosineHistograms: {
+    first: IsotropyHistogram;
+    middle: IsotropyHistogram;
+    last: IsotropyHistogram;
+  };
+}
+
 export type TabGroup = "inspect" | "trace" | "critique";
 
 export interface TabDef {

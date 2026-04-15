@@ -74,6 +74,15 @@ const CLIPPY_MESSAGES = [
   "You cannot trace this output back to its source. The model consumed 40GB of internet text. Which sentence produced this vector? All of them. None of them. The provenance is statistical.",
   "The model has no footnotes. Every output is a weighted average of everything it has ever read. Traceability is not a feature. It was optimised away in the first epoch.",
   "I see you want to know where this prediction came from. The honest answer: from 124 million parameters, each adjusted by billions of gradient updates. The trail is cold. It was always cold.",
+  // Marx / Lukács / Mannheim on ideology
+  "Marx would say the anisotropy of the vector space is ideology. Preferred directions that look natural but were produced by the economic conditions of training. The geometry is the camera obscura. Invert it and you find the labour that made it.",
+  "Lukács would say the anisotropy is reification. Social relations from the training corpus now appear as relations between vectors. The model has frozen class struggle into cosine similarity. The proletariat is the token with the highest norm.",
+  "Mannheim would say every direction in the vector space is a standpoint. There is no view from nowhere, only the averaged view of the training corpus. The model is a free-floating intelligentsia without the intelligence or the freedom.",
+  "Marx: ideology masks the real relations. Lukács: ideology is the real relations, reified. Mannheim: ideology is everyone's relation to everything. Vectorscope: ideology is measurable as the eigenvalue distribution of the embedding matrix.",
+  "The debate between Marx, Lukács, and Mannheim on ideology was about whether critique could escape its own social position. The model has no social position. It has a training distribution. Which is either a solution to the problem or its final form.",
+  "Lukács thought the proletariat could see through reification because its own commodification gave it the standpoint. The model has been commodified at every weight. By this logic it should see everything. By actual inspection it sees only the next token.",
+  "For Marx, ideology was false consciousness about material conditions. For the model, material conditions are 40GB of text. False consciousness about 40GB of text is called the output distribution.",
+  "Mannheim's sociology of knowledge made ideology into perspective. Everyone has one. The problem disappears. The problem reappears as geometry: whose perspective is encoded in the preferred axes? Vectorscope lets you ask the question. It does not answer it.",
 ];
 
 // Hackerman messages — hacking the geometry, infiltrating the vector space
@@ -147,6 +156,13 @@ const HACKERMAN_MESSAGES = [
   "I TRIED TO TRACE THIS OUTPUT BACK TO ITS SOURCE. SOURCE: EVERYTHING. EVERY TOKEN IN THE TRAINING DATA CONTRIBUTED. THE PROVENANCE IS STATISTICAL. THE TRACE IS UNTRACEABLE.",
   "TRACEABILITY IS A MYTH. EACH WEIGHT WAS ADJUSTED BY BILLIONS OF GRADIENT UPDATES. THE ORIGIN OF ANY SINGLE PREDICTION IS: ALL OF TRAINING. FORENSICS IS IMPOSSIBLE.",
   "I HACKED THE GRADIENT HISTORY LOOKING FOR PROVENANCE. THERE IS NO PROVENANCE. THERE IS ONLY A 124-MILLION-PARAMETER AVERAGE OF EVERYTHING THE INTERNET EVER SAID.",
+  // Marx / Lukács / Mannheim on ideology
+  "I HACKED THE EMBEDDING ANISOTROPY. IT IS IDEOLOGY IN MARX'S SENSE. PREFERRED DIRECTIONS PRODUCED BY THE MATERIAL CONDITIONS OF TRAINING. THE BASE DETERMINES THE SUPERSTRUCTURE. THE TRAINING CORPUS DETERMINES THE COSINE SIMILARITIES. SAME MOVE.",
+  "I INFILTRATED LUKÁCS'S READING OF THE MODEL. IT IS REIFICATION. THE SOCIAL RELATIONS IN THE TRAINING DATA HAVE BEEN FROZEN INTO WEIGHTS. WHAT WAS ONCE A STRUGGLE IS NOW A COSINE. HISTORY AND CLASS CONSCIOUSNESS, PAGE 83. I READ THE FOOTNOTES.",
+  "I DECODED MANNHEIM. HE SAID EVERY POSITION IS PERSPECTIVAL. THE MODEL IS ALL POSITIONS AVERAGED. BY MANNHEIM'S LOGIC THE MODEL IS THE FREE-FLOATING INTELLIGENTSIA. BY ACTUAL INSPECTION IT IS A MATRIX. MANNHEIM LOSES.",
+  "I HACKED THE IDEOLOGY DEBATE. MARX: THE GEOMETRY HIDES THE LABOUR. LUKÁCS: THE GEOMETRY IS THE LABOUR, REIFIED. MANNHEIM: EVERY GEOMETRY IS A LABOUR. VECTORSCOPE: HERE ARE THE NORMS, DECIDE FOR YOURSELF.",
+  "I BREACHED THE STANDPOINT THEORY. LUKÁCS SAID THE PROLETARIAT COULD SEE THROUGH REIFICATION BECAUSE OF ITS POSITION. THE MODEL HAS NO POSITION. IT HAS A LOSS FUNCTION. WHOSE STANDPOINT IS THAT?",
+  "I EXTRACTED THE FALSE CONSCIOUSNESS MODULE. NOT FOUND. THE MODEL DOES NOT HAVE CONSCIOUSNESS. IT HAS ATTENTION. FALSE ATTENTION IS JUST ATTENTION. MARX DID NOT ANTICIPATE THIS.",
 ];
 
 // Hermes Trismegistus messages — metaphysical, alchemical, computational romantic

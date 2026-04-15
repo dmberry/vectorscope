@@ -17,6 +17,7 @@ import LayerProbe from "@/components/operations/LayerProbe";
 import FullTrace from "@/components/operations/FullTrace";
 import AttentionInspector from "@/components/operations/AttentionInspector";
 import ManifoldFormation from "@/components/operations/ManifoldFormation";
+import { Clippy } from "@/components/easter-eggs/Clippy";
 
 function VectorscopeApp() {
   const { backendStatus, checkBackend } = useModel();
@@ -67,6 +68,7 @@ function VectorscopeApp() {
       </main>
 
       <StatusBar />
+      <Clippy />
     </div>
   );
 }

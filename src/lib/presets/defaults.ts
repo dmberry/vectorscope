@@ -203,17 +203,17 @@ export const FULL_TRACE_PRESETS: TextPreset[] = [
     title: "Open-ended prompt. Useful for seeing entropy stay high across layers.",
   },
   {
-    label: "ELIZA · Men are all alike.",
+    label: "Men are all",
     text: "Men are all alike.",
     title: "Opening line of Weizenbaum's ELIZA transcript. Canonical in the history of AI critique.",
   },
   {
-    label: "ELIZA · my boyfriend made me come here",
+    label: "Well, my boyfriend made me",
     text: "Well, my boyfriend made me come here.",
     title: "ELIZA transcript line. Tests how the model routes a confessional first-person sentence.",
   },
   {
-    label: "ELIZA · He says I'm depressed",
+    label: "He says I'm",
     text: "He says I'm depressed much of the time.",
     title: "ELIZA transcript line. Reported speech wrapping a first-person mental-state claim.",
   },

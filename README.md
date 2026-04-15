@@ -4,7 +4,7 @@
 
 **Author:** David M. Berry
 **Institution:** University of Sussex
-**Version:** 0.2.5
+**Version:** 0.2.6
 **Date:** 15 April 2026
 **Licence:** MIT
 
@@ -18,7 +18,7 @@ Vectorscope takes its name from the video engineering instrument that measures t
 
 The motivation is both methodological and theoretical.
 
-**Methodologically**, Vectorscope responds to a problem identified by Michael Castelle: that commercial embedding APIs do not give researchers what they think they give them. Commercial APIs return sentence-level composite vectors from a separately trained embedding model, not the internal representations of the generative model itself. The outputs are doubly mediated: first by the embedding model's own training objective, then by the API's post-processing. Open-weight models with accessible architectures are the methodologically stronger route for studying how language models organise meaning. Vectorscope is the practical implementation of that critique.
+**Methodologically**, Vectorscope responds to a problem with commercial embedding APIs: they do not give researchers what they think they give them. Commercial APIs return sentence-level composite vectors from a separately trained embedding model, not the internal representations of the generative model itself. The outputs are doubly mediated: first by the embedding model's own training objective, then by the API's post-processing. Open-weight models with accessible architectures are the methodologically stronger route for studying how language models organise meaning. Vectorscope is the practical implementation of that critique.
 
 **Theoretically**, the tool connects to a critical theory of vector space developed in Berry (2026a, 2026b). Vector space is not a mathematical *a priori* but a material instantiation shaped by economic constraints. The design choices that determine its structure, the number of dimensions, the precision of each coordinate, the training corpus that shapes the manifold, are economic decisions, not neutral engineering parameters. As Berry argues, "capital is no longer disciplining the signal into bits, it is disciplining the bits into vectors."
 
@@ -65,6 +65,8 @@ Vectorscope is organised as a three-group tab navigation following the pipeline 
 | **Precision Degradation** | Signal Degradation Laboratory: same input through FP32 → BF16 → INT8 → INT4. Implements the Leverhulme method | Phase 4 |
 
 All operations include a collapsible **Deep Dive** panel with detailed quantitative data for researchers who want to inspect the numbers directly. 3D plots support **Shift+scroll** for fast zoom.
+
+**Keyboard shortcuts (Generation Vector):** `←` `→` step through panels or, on the Tokenisation panel, step chip by chip; `↑` `↓` jump between rows of chips. Focus syncs across all six panels so arrow-keying through the prompt drives the entire operation. `Esc` closes any modal.
 
 ## Supported Models
 

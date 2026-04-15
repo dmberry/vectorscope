@@ -112,7 +112,7 @@ export default function OperationIntro({
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="px-5 py-4 space-y-3 text-body-md text-foreground leading-relaxed">
+            <div className="px-5 py-4 space-y-2.5 text-caption text-foreground leading-relaxed">
               {details}
             </div>
           </div>

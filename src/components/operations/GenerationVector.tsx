@@ -371,10 +371,79 @@ export default function GenerationVector() {
 
   const activePanel = displayPanels[panelIdx]?.id ?? "tokenisation";
 
-  /* ----- Keyboard: arrow keys for panels ----- */
+  /* ----- Keyboard: arrow keys for panels (or tokens on Tokenisation) ----- */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const isArrow =
+        e.key === "ArrowRight" ||
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown";
+      if (!isArrow) return;
+
+      // Total token count (prompt + generated) for token stepping
+      const totalTokens = (state?.prompt?.promptLen ?? 0) + (state?.steps.length ?? 0);
+
+      // On the Tokenisation panel, arrow keys navigate the chip grid.
+      if (activePanel === "tokenisation" && totalTokens > 0) {
+        e.preventDefault();
+
+        // Left/Right: step by 1
+        if (e.key === "ArrowRight") {
+          setFocusIdx((cur) => (cur === null ? 0 : Math.min(cur + 1, totalTokens - 1)));
+          return;
+        }
+        if (e.key === "ArrowLeft") {
+          setFocusIdx((cur) => (cur === null ? totalTokens - 1 : Math.max(cur - 1, 0)));
+          return;
+        }
+
+        // Up/Down: jump between rows using DOM layout measurement.
+        const chips = Array.from(
+          document.querySelectorAll<HTMLElement>("[data-gv-chip]")
+        );
+        if (!chips.length) return;
+
+        setFocusIdx((cur) => {
+          if (cur === null) return e.key === "ArrowDown" ? 0 : totalTokens - 1;
+          const curEl = chips.find(
+            (el) => parseInt(el.dataset.gvChip ?? "-1", 10) === cur
+          );
+          if (!curEl) return cur;
+          const curTop = curEl.offsetTop;
+          const curCenter = curEl.offsetLeft + curEl.offsetWidth / 2;
+
+          // Find the next row's offsetTop in the chosen direction.
+          let targetTop: number | null = null;
+          chips.forEach((el) => {
+            const t = el.offsetTop;
+            if (e.key === "ArrowDown" && t > curTop) {
+              if (targetTop === null || t < targetTop) targetTop = t;
+            } else if (e.key === "ArrowUp" && t < curTop) {
+              if (targetTop === null || t > targetTop) targetTop = t;
+            }
+          });
+          if (targetTop === null) return cur; // already at first/last row
+
+          // Among chips in the target row, pick the closest by horizontal centre.
+          let best = cur;
+          let bestDist = Infinity;
+          chips.forEach((el) => {
+            if (el.offsetTop !== targetTop) return;
+            const c = el.offsetLeft + el.offsetWidth / 2;
+            const d = Math.abs(c - curCenter);
+            if (d < bestDist) {
+              bestDist = d;
+              best = parseInt(el.dataset.gvChip ?? String(cur), 10);
+            }
+          });
+          return best;
+        });
+        return;
+      }
+
+      // Otherwise, Left/Right step panels (Up/Down are no-ops off the tokenisation panel).
       if (e.key === "ArrowRight") {
         setPanelIdx((i) => Math.min(i + 1, displayPanels.length - 1));
       } else if (e.key === "ArrowLeft") {
@@ -383,7 +452,7 @@ export default function GenerationVector() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [displayPanels.length]);
+  }, [displayPanels.length, activePanel, state?.prompt, state?.steps]);
 
   /* ================================================================ */
   /*  Render                                                           */
@@ -1079,7 +1148,14 @@ function PanelTokenisation({
           Watch for how common words stay whole while rarer forms fragment into pieces
           (&ldquo;ing&rdquo;, &ldquo;tion&rdquo;, byte-level leading spaces). Leading spaces appear
           as &ldquo;·&rdquo; and newlines as &ldquo;↵&rdquo;. Every downstream panel indexes tokens
-          by the absolute position shown here, so click a chip to lock focus across all panels.
+          by the absolute position shown here, so click a chip to lock focus across all panels —
+          or use{" "}
+          <kbd className="font-mono text-[9px] px-1 border border-parchment bg-cream rounded-sm">←</kbd>{" "}
+          <kbd className="font-mono text-[9px] px-1 border border-parchment bg-cream rounded-sm">→</kbd>{" "}
+          to step chip by chip and{" "}
+          <kbd className="font-mono text-[9px] px-1 border border-parchment bg-cream rounded-sm">↑</kbd>{" "}
+          <kbd className="font-mono text-[9px] px-1 border border-parchment bg-cream rounded-sm">↓</kbd>{" "}
+          to jump between rows.
         </p>
       </div>
       <div className="flex flex-wrap gap-1.5">
@@ -1089,6 +1165,7 @@ function PanelTokenisation({
             token={tok}
             id={state.prompt!.tokenIds[i]}
             kind="prompt"
+            absPos={i}
             focused={focusedToken?.absPos === i}
             onClick={() => onFocus(focusIdx === i ? null : i)}
           />
@@ -1101,6 +1178,7 @@ function PanelTokenisation({
               token={s.token}
               id={s.tokenId}
               kind="generated"
+              absPos={absPos}
               focused={focusedToken?.absPos === absPos}
               onClick={() => onFocus(focusIdx === absPos ? null : absPos)}
             />
@@ -1274,38 +1352,73 @@ function FocusedTokenDetail({
       {/* Per-layer summary (PCA coords + layer cosines if generated) */}
       {geom && (
         <div className="pt-1.5 border-t border-parchment/60">
-          <div className="font-sans text-[9px] text-slate uppercase tracking-wider mb-1">
-            Layer geometry (PCA3)
+          <div className="flex items-baseline justify-between mb-1">
+            <div className="font-sans text-[9px] text-slate uppercase tracking-wider">
+              Layer geometry (PCA3) — all {numLayers} layers
+            </div>
+            <div className="font-sans text-[8px] text-slate/70">
+              L0 = post-embedding · L{numLayers - 1} = final hidden
+            </div>
           </div>
-          <div className="max-h-28 overflow-y-auto">
-            <table className="w-full font-mono text-[9px]">
+          <div className="overflow-x-auto">
+            <table className="w-full font-mono text-[10px]">
               <thead>
-                <tr className="text-slate/70">
-                  <th className="text-left py-0 px-1">L</th>
-                  <th className="text-right py-0 px-1">PC1</th>
-                  <th className="text-right py-0 px-1">PC2</th>
-                  <th className="text-right py-0 px-1">PC3</th>
-                  {hiddenNorms && <th className="text-right py-0 px-1">‖h‖</th>}
-                  {layerDeltas && <th className="text-right py-0 px-1">cos(L−1)</th>}
+                <tr className="text-slate/70 border-b border-parchment/60">
+                  <th className="text-left py-0.5 px-1.5">Layer</th>
+                  <th className="text-right py-0.5 px-1.5">PC1</th>
+                  <th className="text-right py-0.5 px-1.5">PC2</th>
+                  <th className="text-right py-0.5 px-1.5">PC3</th>
+                  {hiddenNorms && <th className="text-right py-0.5 px-1.5">‖h‖</th>}
+                  {layerDeltas && <th className="text-right py-0.5 px-1.5">cos(L, L−1)</th>}
+                  {layerDeltas && <th className="text-left py-0.5 px-1.5">rewrite</th>}
                 </tr>
               </thead>
               <tbody>
                 {Array.from({ length: numLayers }).map((_, li) => {
                   const pt = geom[li];
+                  const delta = layerDeltas?.[li] ?? null;
+                  // Bar showing (1 - cos) magnitude: near 1.0 = passthrough, low = strong rewrite
+                  const rewrite =
+                    delta === null
+                      ? null
+                      : Math.max(0, Math.min(1, 1 - delta));
                   return (
-                    <tr key={li} className="text-ink">
-                      <td className="py-0 px-1 text-slate">
-                        {li === 0 ? "L0 embed" : li === numLayers - 1 ? `L${li} final` : `L${li}`}
+                    <tr
+                      key={li}
+                      className="text-ink border-b border-parchment/30 hover:bg-cream/40"
+                    >
+                      <td className="py-0.5 px-1.5 text-slate whitespace-nowrap">
+                        {li === 0
+                          ? `L0 embed`
+                          : li === numLayers - 1
+                          ? `L${li} final`
+                          : `L${li}`}
                       </td>
-                      <td className="py-0 px-1 text-right">{pt[0].toFixed(3)}</td>
-                      <td className="py-0 px-1 text-right">{pt[1].toFixed(3)}</td>
-                      <td className="py-0 px-1 text-right">{pt[2].toFixed(3)}</td>
+                      <td className="py-0.5 px-1.5 text-right">{pt[0].toFixed(3)}</td>
+                      <td className="py-0.5 px-1.5 text-right">{pt[1].toFixed(3)}</td>
+                      <td className="py-0.5 px-1.5 text-right">{pt[2].toFixed(3)}</td>
                       {hiddenNorms && (
-                        <td className="py-0 px-1 text-right">{hiddenNorms[li]?.toFixed(2)}</td>
+                        <td className="py-0.5 px-1.5 text-right">
+                          {hiddenNorms[li]?.toFixed(2)}
+                        </td>
                       )}
                       {layerDeltas && (
-                        <td className="py-0 px-1 text-right">
-                          {layerDeltas[li] === null ? "—" : layerDeltas[li]!.toFixed(3)}
+                        <td className="py-0.5 px-1.5 text-right">
+                          {delta === null ? "—" : delta.toFixed(3)}
+                        </td>
+                      )}
+                      {layerDeltas && (
+                        <td className="py-0.5 px-1.5">
+                          {rewrite === null ? (
+                            <span className="text-slate/40">—</span>
+                          ) : (
+                            <div className="w-16 h-1.5 bg-parchment/60 rounded-sm overflow-hidden inline-block align-middle">
+                              <div
+                                className="h-full bg-burgundy"
+                                style={{ width: `${Math.round(rewrite * 100)}%` }}
+                              />
+                            </div>
+                          )}
                         </td>
                       )}
                     </tr>
@@ -1314,6 +1427,14 @@ function FocusedTokenDetail({
               </tbody>
             </table>
           </div>
+          <p className="font-sans text-[9px] text-slate/70 mt-1">
+            PC1/PC2/PC3 are the token&apos;s coordinates in the global PCA basis fitted
+            across the whole sequence. ‖h‖ is the hidden-state norm at this layer.
+            cos(L, L−1) is the cosine similarity between this layer&apos;s hidden state
+            and the previous — near 1.0 means the layer left the representation nearly
+            untouched, lower values mean stronger rewriting. The burgundy bar shows the
+            rewrite magnitude (1 − cos) on a fixed scale.
+          </p>
         </div>
       )}
 
@@ -1492,17 +1613,20 @@ function TokenIdChip({
   id,
   kind,
   focused,
+  absPos,
   onClick,
 }: {
   token: string;
   id: number;
   kind: "prompt" | "generated";
   focused: boolean;
+  absPos?: number;
   onClick?: () => void;
 }) {
   return (
     <button
       type="button"
+      data-gv-chip={absPos}
       onClick={onClick}
       className={`inline-flex flex-col items-center px-2 py-1 rounded-sm border cursor-pointer transition-colors ${
         focused

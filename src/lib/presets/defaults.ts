@@ -204,18 +204,18 @@ export const FULL_TRACE_PRESETS: TextPreset[] = [
   },
   {
     label: "Men are all",
-    text: "Men are all alike.",
-    title: "Opening line of Weizenbaum's ELIZA transcript. Canonical in the history of AI critique.",
+    text: "Men are all",
+    title: "Opening fragment of Weizenbaum's ELIZA line ('Men are all alike'). The model has to choose how to complete it.",
   },
   {
     label: "Well, my boyfriend made me",
-    text: "Well, my boyfriend made me come here.",
-    title: "ELIZA transcript line. Tests how the model routes a confessional first-person sentence.",
+    text: "Well, my boyfriend made me",
+    title: "Opening fragment of an ELIZA transcript line. Confessional first-person prompt — where does the model take it?",
   },
   {
     label: "He says I'm",
-    text: "He says I'm depressed much of the time.",
-    title: "ELIZA transcript line. Reported speech wrapping a first-person mental-state claim.",
+    text: "He says I'm",
+    title: "Opening fragment of an ELIZA transcript line. Reported speech wrapping a first-person mental state — the completion is the interesting part.",
   },
   {
     label: "I am depressed so",

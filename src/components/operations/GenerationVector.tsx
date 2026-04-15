@@ -1623,10 +1623,11 @@ function TokenisationVectorChart({
       </h5>
       <div className="font-sans text-[11px] text-slate space-y-1.5">
         <p>
-          Each token&apos;s input embedding is an <em>independent</em> lookup: token at position
-          t does not see token at position t&minus;1. At layer 0 the computation is not
-          cumulative. What becomes cumulative further up the stack is the hidden state,
-          because causal attention from layer 1 onwards lets each position read the prefix.
+          Each token&apos;s input embedding is an <em>independent</em>{" "}
+          lookup: token at position t does not see token at position t&minus;1. At layer
+          0 the computation is not cumulative. What becomes cumulative further up the
+          stack is the hidden state, because causal attention from layer 1 onwards lets
+          each position read the prefix.
         </p>
         <p>
           The bars below are per-token L2 norms of the input embedding. The burgundy line is

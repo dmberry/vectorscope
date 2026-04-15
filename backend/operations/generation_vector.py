@@ -301,6 +301,40 @@ def stream_generation_vector(
         round(float(np.mean(e["hiddenNorms"])), 4) for e in per_step_events
     ]
 
+    # Tokenisation series: per-token input-embedding (layer 0) geometry for
+    # the whole sequence. Input embeddings are independent lookups — there is
+    # no causal information flow at layer 0 — but we can still compute the
+    # running vector sum to show how much consecutive tokens reinforce or
+    # cancel each other geometrically.
+    layer0_stack = np.stack(
+        [per_layer[0] for per_layer in all_hidden_vecs], axis=0
+    )  # [total_tokens, hidden_dim]
+    layer0_norms = np.linalg.norm(layer0_stack, axis=1)
+    cumulative_sum = np.cumsum(layer0_stack, axis=0)  # [total_tokens, hidden_dim]
+    cumulative_norms = np.linalg.norm(cumulative_sum, axis=1)
+    t_indices = np.arange(1, total_tokens + 1, dtype=np.float32)
+    cumulative_mean_norms = cumulative_norms / t_indices
+    # Independence baseline: if tokens were i.i.d. with per-token norm n,
+    # E[||sum||] ~ n * sqrt(t). Use the mean per-token norm as n.
+    mean_per_token_norm = float(np.mean(layer0_norms))
+    independence_baseline = (mean_per_token_norm * np.sqrt(t_indices)).tolist()
+    # First-16 dim preview of each token's input embedding (for the deep-dive
+    # numeric table). Keep it bounded so payload stays small.
+    preview_dims = min(16, hidden_dim)
+    vector_preview = [
+        [round(float(v), 4) for v in layer0_stack[t, :preview_dims].tolist()]
+        for t in range(total_tokens)
+    ]
+
+    tokenisation_series = {
+        "perTokenNorms": [round(float(n), 4) for n in layer0_norms.tolist()],
+        "cumulativeSumNorms": [round(float(n), 4) for n in cumulative_norms.tolist()],
+        "cumulativeMeanNorms": [round(float(n), 4) for n in cumulative_mean_norms.tolist()],
+        "independenceBaseline": [round(float(b), 4) for b in independence_baseline],
+        "previewDims": preview_dims,
+        "vectorPreview": vector_preview,
+    }
+
     yield json.dumps({
         "stage": "complete",
         "numLayers": num_layers,
@@ -311,4 +345,5 @@ def stream_generation_vector(
         "fullText": full_text,
         "entropySeries": entropy_series,
         "meanNormSeries": norms_series_means,
+        "tokenisationSeries": tokenisation_series,
     }) + "\n"

@@ -54,6 +54,15 @@ interface GeometryEvent {
   coords: [number, number, number][][]; // [token][layer]
 }
 
+interface TokenisationSeries {
+  perTokenNorms: number[];
+  cumulativeSumNorms: number[];
+  cumulativeMeanNorms: number[];
+  independenceBaseline: number[];
+  previewDims: number;
+  vectorPreview: number[][];
+}
+
 interface CompleteEvent {
   stage: "complete";
   numLayers: number;
@@ -64,6 +73,7 @@ interface CompleteEvent {
   fullText: string;
   entropySeries: number[];
   meanNormSeries: number[];
+  tokenisationSeries?: TokenisationSeries;
 }
 
 interface ErrorEvent {
@@ -847,6 +857,76 @@ export default function GenerationVector() {
                     </p>
                   </div>
 
+                  {/* Tokenisation numeric table */}
+                  {state.complete.tokenisationSeries && (
+                    <div>
+                      <h4 className="font-sans text-[11px] font-semibold text-slate uppercase tracking-wider mb-2">
+                        Tokenisation — full vector numerics
+                      </h4>
+                      <p className="font-sans text-[10px] text-slate mb-2">
+                        Per-token input-embedding norm, running cumulative sum norm, running
+                        mean norm, independence baseline (mean-norm × √t), and the first{" "}
+                        {state.complete.tokenisationSeries.previewDims} components of each
+                        token&apos;s input-embedding vector. Click a row to focus.
+                      </p>
+                      <div className="max-h-72 overflow-auto border border-parchment rounded-sm">
+                        <table className="w-full font-mono text-[10px]">
+                          <thead className="sticky top-0 bg-cream/90 backdrop-blur-sm">
+                            <tr className="border-b border-parchment text-slate">
+                              <th className="py-1 px-2 text-left">Pos</th>
+                              <th className="py-1 px-2 text-left">Token</th>
+                              <th className="py-1 px-2 text-right">‖v‖</th>
+                              <th className="py-1 px-2 text-right">‖Σv‖</th>
+                              <th className="py-1 px-2 text-right">‖Σv‖/t</th>
+                              <th className="py-1 px-2 text-right">√t·n̄</th>
+                              <th className="py-1 px-2 text-left">
+                                v[0..{state.complete.tokenisationSeries.previewDims - 1}]
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {state.complete.tokenisationSeries.perTokenNorms.map((n, i) => {
+                              const ts = state.complete!.tokenisationSeries!;
+                              const promptL = state.complete!.promptLen;
+                              const isPrompt = i < promptL;
+                              const tokStr = isPrompt
+                                ? state.prompt!.tokens[i]
+                                : state.steps[i - promptL]?.token ?? "";
+                              const displayTok =
+                                tokStr === "\n" ? "↵" : tokStr === " " ? "·" : tokStr;
+                              return (
+                                <tr
+                                  key={i}
+                                  className="border-b border-parchment/50 hover:bg-cream/40 cursor-pointer"
+                                  onClick={() => setFocusIdx(i)}
+                                >
+                                  <td className="py-1 px-2 text-slate">{i}</td>
+                                  <td className="py-1 px-2 text-ink">{displayTok}</td>
+                                  <td className="py-1 px-2 text-right">{n.toFixed(3)}</td>
+                                  <td className="py-1 px-2 text-right">
+                                    {ts.cumulativeSumNorms[i].toFixed(3)}
+                                  </td>
+                                  <td className="py-1 px-2 text-right">
+                                    {ts.cumulativeMeanNorms[i].toFixed(3)}
+                                  </td>
+                                  <td className="py-1 px-2 text-right text-slate">
+                                    {ts.independenceBaseline[i].toFixed(3)}
+                                  </td>
+                                  <td className="py-1 px-2 text-slate whitespace-nowrap">
+                                    [{ts.vectorPreview[i]
+                                      .map((v) => (v >= 0 ? " " : "") + v.toFixed(3))
+                                      .join(", ")}
+                                    ]
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Full generated text */}
                   <div>
                     <h4 className="font-sans text-[11px] font-semibold text-slate uppercase tracking-wider mb-2">
@@ -1028,16 +1108,381 @@ function PanelTokenisation({
         })}
       </div>
       {focusedToken && (
-        <div className="mt-4 p-3 bg-cream/50 rounded-sm">
-          <div className="font-mono text-[11px] text-slate">Focused token:</div>
-          <div className="font-mono text-[13px] text-ink mt-1">
-            {JSON.stringify(focusedToken.str)} · id {" "}
-            {focusedToken.kind === "prompt"
-              ? state.prompt.tokenIds[focusedToken.absPos]
-              : state.steps[focusedToken.stepIdx!].tokenId}
+        <FocusedTokenDetail state={state} focusedToken={focusedToken} />
+      )}
+
+      {state.complete?.tokenisationSeries && (
+        <TokenisationVectorChart
+          series={state.complete.tokenisationSeries}
+          labels={[
+            ...state.prompt.tokens.map((t) => (t === "\n" ? "↵" : t === " " ? "·" : t)),
+            ...state.steps.map((s) => (s.token === "\n" ? "↵" : s.token === " " ? "·" : s.token)),
+          ]}
+          promptLen={promptLen}
+          focusX={focusedToken?.absPos ?? null}
+        />
+      )}
+    </div>
+  );
+}
+
+function FocusedTokenDetail({
+  state,
+  focusedToken,
+}: {
+  state: GenerationState;
+  focusedToken: { str: string; absPos: number; kind: "prompt" | "generated"; stepIdx: number | null };
+}) {
+  if (!state.prompt) return null;
+  const promptLen = state.prompt.promptLen;
+  const absPos = focusedToken.absPos;
+  const isPrompt = focusedToken.kind === "prompt";
+  const tokenId = isPrompt
+    ? state.prompt.tokenIds[absPos]
+    : state.steps[focusedToken.stepIdx!]?.tokenId ?? -1;
+
+  const tokStr = focusedToken.str;
+  const bytes = Array.from(new TextEncoder().encode(tokStr));
+  const codePoints = Array.from(tokStr).map((c) => c.codePointAt(0) ?? 0);
+  const hasLeadingSpace = tokStr.startsWith(" ");
+  const isNewline = tokStr === "\n";
+  const isWhitespaceOnly = /^\s+$/.test(tokStr) && !isNewline;
+
+  // Tokenisation series stats (if generation completed)
+  const ts = state.complete?.tokenisationSeries;
+  const inputNorm = ts?.perTokenNorms[absPos];
+  const cumNorm = ts?.cumulativeSumNorms[absPos];
+  const cumMean = ts?.cumulativeMeanNorms[absPos];
+  const baseline = ts?.independenceBaseline[absPos];
+  const preview = ts?.vectorPreview[absPos];
+
+  // Per-layer geometry from Geometry event
+  const geom = state.geometry?.coords[absPos];
+  const numLayers = state.geometry?.numLayers ?? 0;
+
+  // If it's a generated token, pull the step event for richer data.
+  const step =
+    !isPrompt && focusedToken.stepIdx !== null ? state.steps[focusedToken.stepIdx] : null;
+  const hiddenNorms = step?.hiddenNorms;
+  const layerDeltas = step?.layerDeltas;
+  const topPred = step?.topPredictions?.slice(0, 5);
+  const entropy = step?.entropyBits;
+  const topP1 = topPred?.[0]?.probability;
+  const rank = step
+    ? step.topPredictions.findIndex((p) => p.tokenId === step.tokenId)
+    : -1;
+
+  const displayTok = isNewline
+    ? "↵ (newline)"
+    : isWhitespaceOnly
+    ? `· (${tokStr.length}× space)`
+    : JSON.stringify(tokStr);
+
+  return (
+    <div className="mt-4 p-3 bg-cream/50 rounded-sm space-y-2">
+      <div className="flex items-baseline justify-between gap-4 flex-wrap">
+        <div>
+          <div className="font-sans text-[9px] text-slate uppercase tracking-wider">
+            Focused token
+          </div>
+          <div className="font-mono text-[14px] text-ink mt-0.5">{displayTok}</div>
+        </div>
+        <div className="font-mono text-[9px] text-slate text-right leading-relaxed">
+          pos {absPos} of {(state.complete?.numGenerated ?? state.steps.length) + promptLen} ·{" "}
+          {isPrompt ? "PROMPT" : `GENERATED · step ${(focusedToken.stepIdx ?? 0) + 1}`}
+          <br />
+          id {tokenId} · len {tokStr.length} char{tokStr.length === 1 ? "" : "s"} ·{" "}
+          {bytes.length} byte{bytes.length === 1 ? "" : "s"}
+        </div>
+      </div>
+
+      {/* Lexical / byte detail */}
+      <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 font-mono text-[9px] text-slate">
+        <div>
+          <span className="text-slate/70">bytes:</span>{" "}
+          <span className="text-ink">
+            {bytes.map((b) => b.toString(16).padStart(2, "0")).join(" ") || "∅"}
+          </span>
+        </div>
+        <div>
+          <span className="text-slate/70">code pts:</span>{" "}
+          <span className="text-ink">
+            {codePoints.map((c) => "U+" + c.toString(16).toUpperCase().padStart(4, "0")).join(" ") || "∅"}
+          </span>
+        </div>
+        <div>
+          <span className="text-slate/70">leading space:</span>{" "}
+          <span className="text-ink">{hasLeadingSpace ? "yes" : "no"}</span>
+        </div>
+        <div>
+          <span className="text-slate/70">class:</span>{" "}
+          <span className="text-ink">
+            {isNewline
+              ? "newline"
+              : isWhitespaceOnly
+              ? "whitespace"
+              : /^[A-Za-z]+$/.test(tokStr.trim())
+              ? "alpha"
+              : /^[0-9]+$/.test(tokStr.trim())
+              ? "digit"
+              : /^[\p{P}]+$/u.test(tokStr.trim())
+              ? "punct"
+              : "mixed"}
+          </span>
+        </div>
+      </div>
+
+      {/* Geometry detail — visible once tokenisation series is available */}
+      {ts && inputNorm !== undefined && (
+        <div className="pt-1.5 border-t border-parchment/60">
+          <div className="font-sans text-[9px] text-slate uppercase tracking-wider mb-1">
+            Input embedding (layer 0)
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-0.5 font-mono text-[9px]">
+            <div>
+              <span className="text-slate/70">‖v‖:</span>{" "}
+              <span className="text-ink">{inputNorm.toFixed(4)}</span>
+            </div>
+            <div>
+              <span className="text-slate/70">‖Σv‖:</span>{" "}
+              <span className="text-ink">{cumNorm?.toFixed(4)}</span>
+            </div>
+            <div>
+              <span className="text-slate/70">‖Σv‖/t:</span>{" "}
+              <span className="text-ink">{cumMean?.toFixed(4)}</span>
+            </div>
+            <div>
+              <span className="text-slate/70">√t·n̄:</span>{" "}
+              <span className="text-ink">{baseline?.toFixed(4)}</span>
+            </div>
+          </div>
+          {preview && (
+            <div className="mt-1 font-mono text-[9px] text-slate whitespace-nowrap overflow-x-auto">
+              <span className="text-slate/70">v[0..{preview.length - 1}]:</span>{" "}
+              <span className="text-ink">
+                [
+                {preview
+                  .map((v) => (v >= 0 ? " " : "") + v.toFixed(3))
+                  .join(", ")}
+                ]
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Per-layer summary (PCA coords + layer cosines if generated) */}
+      {geom && (
+        <div className="pt-1.5 border-t border-parchment/60">
+          <div className="font-sans text-[9px] text-slate uppercase tracking-wider mb-1">
+            Layer geometry (PCA3)
+          </div>
+          <div className="max-h-28 overflow-y-auto">
+            <table className="w-full font-mono text-[9px]">
+              <thead>
+                <tr className="text-slate/70">
+                  <th className="text-left py-0 px-1">L</th>
+                  <th className="text-right py-0 px-1">PC1</th>
+                  <th className="text-right py-0 px-1">PC2</th>
+                  <th className="text-right py-0 px-1">PC3</th>
+                  {hiddenNorms && <th className="text-right py-0 px-1">‖h‖</th>}
+                  {layerDeltas && <th className="text-right py-0 px-1">cos(L−1)</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: numLayers }).map((_, li) => {
+                  const pt = geom[li];
+                  return (
+                    <tr key={li} className="text-ink">
+                      <td className="py-0 px-1 text-slate">
+                        {li === 0 ? "L0 embed" : li === numLayers - 1 ? `L${li} final` : `L${li}`}
+                      </td>
+                      <td className="py-0 px-1 text-right">{pt[0].toFixed(3)}</td>
+                      <td className="py-0 px-1 text-right">{pt[1].toFixed(3)}</td>
+                      <td className="py-0 px-1 text-right">{pt[2].toFixed(3)}</td>
+                      {hiddenNorms && (
+                        <td className="py-0 px-1 text-right">{hiddenNorms[li]?.toFixed(2)}</td>
+                      )}
+                      {layerDeltas && (
+                        <td className="py-0 px-1 text-right">
+                          {layerDeltas[li] === null ? "—" : layerDeltas[li]!.toFixed(3)}
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
+
+      {/* Generation-time detail only for generated tokens */}
+      {step && (
+        <div className="pt-1.5 border-t border-parchment/60">
+          <div className="font-sans text-[9px] text-slate uppercase tracking-wider mb-1">
+            Sampling at this step
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-0.5 font-mono text-[9px]">
+            <div>
+              <span className="text-slate/70">entropy:</span>{" "}
+              <span className="text-ink">{entropy?.toFixed(3)} bits</span>
+            </div>
+            <div>
+              <span className="text-slate/70">top-1 p:</span>{" "}
+              <span className="text-ink">{topP1?.toFixed(4)}</span>
+            </div>
+            <div>
+              <span className="text-slate/70">rank in top-k:</span>{" "}
+              <span className="text-ink">{rank >= 0 ? `#${rank + 1}` : "off-list"}</span>
+            </div>
+            <div>
+              <span className="text-slate/70">ctx len:</span>{" "}
+              <span className="text-ink">{step.contextLen}</span>
+            </div>
+          </div>
+          {topPred && topPred.length > 0 && (
+            <div className="mt-1 font-mono text-[9px] text-slate">
+              <span className="text-slate/70">top 5:</span>{" "}
+              {topPred.map((p, i) => (
+                <span key={i} className="text-ink">
+                  {i > 0 ? " · " : ""}
+                  {JSON.stringify(p.token)}:{p.probability.toFixed(3)}
+                  {p.tokenId === step.tokenId ? "✓" : ""}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {isPrompt && state.prompt.inputEmbedNorms && (
+        <div className="pt-1.5 border-t border-parchment/60 font-mono text-[9px] text-slate">
+          <span className="text-slate/70">prompt-stage ‖v‖:</span>{" "}
+          <span className="text-ink">{state.prompt.inputEmbedNorms[absPos]?.toFixed(4)}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TokenisationVectorChart({
+  series,
+  labels,
+  promptLen,
+  focusX,
+}: {
+  series: TokenisationSeries;
+  labels: string[];
+  promptLen: number;
+  focusX: number | null;
+}) {
+  const x = labels.map((_, i) => i);
+  const maxVal = Math.max(
+    ...series.perTokenNorms,
+    ...series.cumulativeSumNorms,
+    ...series.independenceBaseline,
+  );
+
+  return (
+    <div className="mt-4 space-y-2">
+      <h5 className="font-sans text-[10px] font-semibold text-slate uppercase tracking-wider">
+        Vector calculation across tokens
+      </h5>
+      <div className="font-sans text-[11px] text-slate space-y-1.5">
+        <p>
+          Each token&apos;s input embedding is an <em>independent</em> lookup: token at position
+          t does not see token at position t&minus;1. At layer 0 the computation is not
+          cumulative. What becomes cumulative further up the stack is the hidden state,
+          because causal attention from layer 1 onwards lets each position read the prefix.
+        </p>
+        <p>
+          The bars below are per-token L2 norms of the input embedding. The burgundy line is
+          the L2 norm of the running vector sum Σ<sub>i≤t</sub> v<sub>i</sub>. The clay dashed
+          line is the independence baseline — what that running-sum norm would be on average
+          if the v<sub>i</sub> were independent vectors of the mean observed norm, growing
+          like √t. When the burgundy line tracks the clay line, consecutive tokens cancel as
+          randomness expects; when it climbs above, tokens are pulling geometrically in the
+          same direction; when it drops below, they are cancelling.
+        </p>
+      </div>
+      <Plot
+        data={[
+          {
+            type: "bar",
+            x,
+            y: series.perTokenNorms,
+            name: "per-token ‖v‖",
+            marker: {
+              color: labels.map((_, i) =>
+                i < promptLen ? "#A67F6F" : "#C9A227"
+              ),
+            },
+            hovertemplate: "%{text}<br>‖v‖ = %{y:.3f}<extra></extra>",
+            text: labels,
+          },
+          {
+            type: "scatter",
+            mode: "lines+markers",
+            x,
+            y: series.cumulativeSumNorms,
+            name: "‖Σ v‖ cumulative",
+            line: { color: "#5B2333", width: 2 },
+            marker: { size: 4, color: "#5B2333" },
+            hovertemplate: "pos %{x}<br>‖Σ v‖ = %{y:.3f}<extra></extra>",
+          },
+          {
+            type: "scatter",
+            mode: "lines",
+            x,
+            y: series.independenceBaseline,
+            name: "independence baseline (√t)",
+            line: { color: "#A67F6F", width: 1.5, dash: "dash" },
+            hovertemplate: "pos %{x}<br>baseline %{y:.3f}<extra></extra>",
+          },
+        ]}
+        layout={{
+          height: 260,
+          margin: { l: 40, r: 15, t: 10, b: 40 },
+          paper_bgcolor: "transparent",
+          plot_bgcolor: "transparent",
+          xaxis: {
+            title: "token position",
+            tickmode: "array",
+            tickvals: x.filter((_, i) => i % Math.max(1, Math.floor(x.length / 18)) === 0),
+            ticktext: labels.filter((_, i) => i % Math.max(1, Math.floor(x.length / 18)) === 0),
+            tickangle: -45,
+            tickfont: { size: 9, family: "monospace" },
+          },
+          yaxis: { title: "L2 norm", gridcolor: "#E8E0D4" },
+          font: { family: "Inter, sans-serif", color: "#4A4A4A", size: 10 },
+          legend: { orientation: "h", y: -0.28, font: { size: 9 } },
+          shapes:
+            focusX !== null
+              ? [
+                  {
+                    type: "line",
+                    x0: focusX,
+                    x1: focusX,
+                    y0: 0,
+                    y1: maxVal,
+                    line: { color: "#8B1A3B", width: 1, dash: "dot" },
+                  },
+                ]
+              : [
+                  {
+                    type: "line",
+                    x0: promptLen - 0.5,
+                    x1: promptLen - 0.5,
+                    y0: 0,
+                    y1: maxVal,
+                    line: { color: "#A67F6F", width: 1 },
+                  },
+                ],
+        }}
+        config={{ displayModeBar: false }}
+        style={{ width: "100%" }}
+      />
     </div>
   );
 }

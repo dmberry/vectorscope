@@ -4,7 +4,7 @@
 
 **Author:** David M. Berry
 **Institution:** University of Sussex
-**Version:** 0.2.4
+**Version:** 0.2.5
 **Date:** 15 April 2026
 **Licence:** MIT
 
@@ -52,7 +52,7 @@ Vectorscope is organised as a three-group tab navigation following the pipeline 
 | **Token Trajectory** | Trace a token through all layers. 3D trajectory path, layer-to-layer cosine similarity, norm profile | ✓ |
 | **Layer Probe** | Hidden states at a specific layer. Token similarity heatmap, norm bars, full similarity matrix | ✓ |
 | **Full Trace** | Complete tokens → embeddings → layers → predictions pipeline. NDJSON streaming with progress, per-token norm heatmap, top-K prediction chart, entropy | ✓ |
-| **Generation Vector** | Full autoregressive generation with instrumented forward passes. Six horizontal panels (tokenisation, input embedding, attention, layer progression, output distribution, decoded text), scrubber playback, click-to-focus across panels, global PCA 3D trajectory per token | ✓ |
+| **Generation Vector** | Full autoregressive generation with instrumented forward passes. Six horizontal panels (tokenisation, input embedding, attention, layer progression, output distribution, decoded text), scrubber playback, click-to-focus across panels, global PCA 3D trajectory per token. Tokenisation panel shows running ‖Σv‖ cumulative sum vs √t independence baseline; rich focused-token detail card with bytes/codepoints, per-layer geometry, and sampling detail | ✓ |
 | **Manifold Formation** | Animated layer-by-layer PCA geometry with play/pause controls. Shows how the manifold forms through depth | ✓ |
 
 ### Critique (theoretical/analytical instruments)

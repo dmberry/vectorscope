@@ -7,6 +7,8 @@ import { useModel } from "@/context/ModelContext";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 import OperationIntro from "@/components/OperationIntro";
+import PresetChipRow from "@/components/PresetChipRow";
+import { FULL_TRACE_PRESETS } from "@/lib/presets/defaults";
 
 const BACKEND_URL = "http://localhost:8000";
 
@@ -213,6 +215,16 @@ export default function FullTrace() {
             </p>
           </div>
         )}
+        <div className="mt-2">
+          <PresetChipRow
+            disabled={running}
+            items={FULL_TRACE_PRESETS.map((p) => ({
+              label: p.label,
+              title: p.title,
+              onClick: () => setText(p.text),
+            }))}
+          />
+        </div>
       </div>
 
       {trace?.tokenize && (
@@ -325,9 +337,12 @@ export default function FullTrace() {
           {/* Output predictions */}
           {trace.output && (
             <div className="card-editorial p-3">
-              <h3 className="font-sans text-xs font-semibold text-slate mb-2">
+              <h3 className="font-sans text-xs font-semibold text-slate">
                 Top Predictions (next token)
               </h3>
+              <p className="font-mono text-[10px] text-slate/80 mb-2 italic truncate">
+                after: &ldquo;{trace.complete?.inputText ?? trace.tokenize?.tokens.join("") ?? ""}&rdquo;
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Plot

@@ -36,6 +36,7 @@ export default function HelpDialog() {
                   <li>Start the Python backend (<code className="bg-parchment px-1 rounded">cd backend && python main.py</code>)</li>
                   <li>Load a model from the model selector in the header</li>
                   <li>Pick an operation from the tab groups (Inspect / Trace / Critique)</li>
+                  <li>Most operations now have a <strong>preset chip row</strong> under the input controls. Click a chip to fill the inputs with a theoretically-motivated example (contested concepts, bias probes, subject-verb traps, sampling-config bundles); then click <em>Run</em>. Chips do not auto-run, because some operations are expensive</li>
                   <li>Every operation has a collapsible introduction at the top with a <em>Learn more</em> modal; every operation also has a <em>Deep Dive</em> panel at the bottom with the full quantitative data</li>
                 </ol>
               </section>

@@ -9,6 +9,8 @@ import { projectPCA3D } from "@/lib/geometry/pca";
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 import Plot3DWrapper from "@/components/Plot3DWrapper";
 import OperationIntro from "@/components/OperationIntro";
+import PresetChipRow from "@/components/PresetChipRow";
+import { TOKEN_TRAJECTORY_PRESETS } from "@/lib/presets/defaults";
 
 const BACKEND_URL = "http://localhost:8000";
 
@@ -74,7 +76,7 @@ export default function TokenTrajectory() {
         }
       />
       {/* Controls */}
-      <div className="card-editorial p-4">
+      <div className="card-editorial p-4 space-y-2">
         <div className="flex items-center gap-4">
           <label className="font-sans text-[11px] text-slate">
             Input text
@@ -96,6 +98,14 @@ export default function TokenTrajectory() {
           </button>
           {error && <span className="text-red-600 font-sans text-[11px]">{error}</span>}
         </div>
+        <PresetChipRow
+          disabled={loading}
+          items={TOKEN_TRAJECTORY_PRESETS.map((p) => ({
+            label: p.label,
+            title: p.title,
+            onClick: () => setText(p.text),
+          }))}
+        />
       </div>
 
       {result && (

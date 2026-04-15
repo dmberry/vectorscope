@@ -4,7 +4,7 @@
 
 **Author:** David M. Berry
 **Institution:** University of Sussex
-**Version:** 0.2.7
+**Version:** 0.2.8
 **Date:** 15 April 2026
 **Licence:** MIT
 
@@ -66,6 +66,8 @@ Vectorscope is organised as a three-group tab navigation following the pipeline 
 
 All operations include a collapsible **Deep Dive** panel with detailed quantitative data for researchers who want to inspect the numbers directly. 3D plots support **Shift+scroll** for fast zoom.
 
+Most operations with user inputs also expose a **preset chip row** under the input controls. Presets are theoretically-motivated: contested concepts (justice, capital, woman, labour), subject-verb agreement traps, bias probes, Berry's own formulations ("Capital is disciplining bits into vectors"), and sampling-config bundles for Generation Vector (greedy, low-temp, high-temp). Clicking a chip fills the inputs; you still click **Run** yourself, because some operations are expensive and should not fire on an accidental click.
+
 **Keyboard shortcuts (Generation Vector):** `←` `→` step through panels or, on the Tokenisation panel, step chip by chip; `↑` `↓` jump between rows of chips. Focus syncs across all six panels so arrow-keying through the prompt drives the entire operation. `Esc` closes any modal.
 
 ## Supported Models
@@ -113,11 +115,16 @@ Before you begin, install the following. All are free and widely packaged:
 ```bash
 git clone https://github.com/dmberry/vectorscope.git
 cd vectorscope
+ls
 ```
+
+The `ls` is a sanity check. You should see (among other things) a `backend/` folder, a `src/` folder, a `package.json`, and a `README.md`. If you do, you are in the project root and the rest of the instructions will work. If you see nothing, or a single folder called `vectorscope`, you are one level too high — run `cd vectorscope` again.
+
+Throughout the rest of this guide, **"the project root"** means the directory this `ls` just ran in. Whenever an instruction says "from the project root", you can confirm you are there by running `ls` and checking for `backend/` and `package.json` side by side.
 
 ### 2. Set up and start the Python backend
 
-Open a terminal in the project root and run:
+From the project root (see step 1 for how to confirm), run:
 
 ```bash
 cd backend
@@ -127,6 +134,8 @@ pip install --upgrade pip
 pip install -r requirements.txt
 python main.py
 ```
+
+After `cd backend` you can double-check with `ls` — you should see `main.py`, `requirements.txt`, and folders `models/`, `operations/`.
 
 The first `pip install` pulls down PyTorch, Transformers, FastAPI, scikit-learn and friends. On a fast connection this takes 2–5 minutes; on a slow one, considerably more. Subsequent runs reuse the virtual environment instantly.
 
@@ -143,12 +152,16 @@ Leave this terminal running. You can sanity-check the backend by visiting [http:
 
 ### 3. Install and start the frontend
 
-Open a *second* terminal in the project root (leave the backend running in the first) and run:
+Leave the backend terminal running. Open a *second* terminal and navigate to the project root — **not** the `backend` subdirectory, the top-level `vectorscope` directory where `package.json` lives:
 
 ```bash
+cd /path/to/vectorscope        # adjust to wherever you cloned it
+ls package.json                 # should print: package.json
 npm install
 npm run dev
 ```
+
+The `ls package.json` is another sanity check: if it errors with "No such file or directory", you are in the wrong place (most likely still inside `backend/`). `cd ..` once and try again.
 
 The first `npm install` fetches Next.js, React, Plotly, Three.js and the rest of the frontend tree (~1–2 GB of `node_modules`, 1–3 minutes on a fast connection). Subsequent runs are instant.
 

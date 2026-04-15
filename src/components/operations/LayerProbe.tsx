@@ -7,6 +7,8 @@ import { useModel } from "@/context/ModelContext";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 import OperationIntro from "@/components/OperationIntro";
+import PresetChipRow from "@/components/PresetChipRow";
+import { LAYER_PROBE_PRESETS, resolveLayer } from "@/lib/presets/defaults";
 
 const BACKEND_URL = "http://localhost:8000";
 
@@ -74,7 +76,7 @@ export default function LayerProbe() {
         }
       />
       {/* Controls */}
-      <div className="card-editorial p-4">
+      <div className="card-editorial p-4 space-y-2">
         <div className="flex items-center gap-4 flex-wrap">
           <label className="font-sans text-[11px] text-slate">
             Input
@@ -104,6 +106,17 @@ export default function LayerProbe() {
           </button>
           {error && <span className="text-red-600 font-sans text-[11px]">{error}</span>}
         </div>
+        <PresetChipRow
+          disabled={loading}
+          items={LAYER_PROBE_PRESETS.map((p) => ({
+            label: p.label,
+            title: p.title,
+            onClick: () => {
+              setText(p.text);
+              setLayer(resolveLayer(p.layer, numLayers));
+            },
+          }))}
+        />
       </div>
 
       {result && (

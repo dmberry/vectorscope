@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Play, Pause, SkipBack, SkipForward, ArrowLeftRight, ChevronDown, ChevronUp } from "lucide-react";
 import OperationIntro from "@/components/OperationIntro";
+import PresetChipRow from "@/components/PresetChipRow";
+import { GENERATION_VECTOR_PRESETS } from "@/lib/presets/defaults";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
@@ -498,6 +500,22 @@ export default function GenerationVector() {
             rows={2}
             placeholder="Enter a prompt to generate from..."
           />
+          <div className="mt-2">
+            <PresetChipRow
+              disabled={running}
+              items={GENERATION_VECTOR_PRESETS.map((p) => ({
+                label: p.label,
+                title: p.title,
+                onClick: () => {
+                  setPrompt(p.prompt);
+                  if (p.maxNewTokens !== undefined) setMaxNewTokens(p.maxNewTokens);
+                  if (p.temperature !== undefined) setTemperature(p.temperature);
+                  if (p.topP !== undefined) setTopP(p.topP);
+                  if (p.topK !== undefined) setTopK(p.topK);
+                },
+              }))}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

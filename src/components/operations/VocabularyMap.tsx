@@ -8,6 +8,8 @@ import type { EmbeddingTableResult } from "@/types/model";
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 import Plot3DWrapper from "@/components/Plot3DWrapper";
 import OperationIntro from "@/components/OperationIntro";
+import PresetChipRow from "@/components/PresetChipRow";
+import { VOCABULARY_MAP_PRESETS } from "@/lib/presets/defaults";
 
 const BACKEND_URL = "http://localhost:8000";
 
@@ -74,7 +76,7 @@ export default function VocabularyMap() {
         }
       />
       {/* Controls */}
-      <div className="card-editorial p-4">
+      <div className="card-editorial p-4 space-y-2">
         <div className="flex items-center gap-4 flex-wrap">
           <label className="font-sans text-[11px] text-slate">
             Sample
@@ -108,6 +110,14 @@ export default function VocabularyMap() {
           )}
           {error && <span className="text-red-600 font-sans text-[11px]">{error}</span>}
         </div>
+        <PresetChipRow
+          disabled={loading}
+          items={VOCABULARY_MAP_PRESETS.map((p) => ({
+            label: p.label,
+            title: p.title,
+            onClick: () => setSampleSize(p.value),
+          }))}
+        />
       </div>
 
       {result && (

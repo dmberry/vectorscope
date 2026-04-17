@@ -21,8 +21,6 @@ Vectorscope is a web-based research instrument that enables scholars and researc
 
 The tool is designed for critical and empirical inquiry into the internal structure of language models, not engineering evaluation. Where existing model-inspection tools (BertViz, TransformerLens, Baukit) focus on mechanistic interpretability for alignment research, Vectorscope treats the vector space as a *medium* to be examined: its grain, its geometry, its ideological affordances.
 
-> Vectorscope is part of the [Vector Lab](https://github.com/dmberry) family of research instruments, alongside [Manifold Atlas](https://github.com/dmberry/manifold-atlas), [LLMbench](https://github.com/dmberry/LLMbench), and [Theoryscope](https://github.com/dmberry/theoryscope). The four tools share an editorial design system, an open-weight-friendly methodology, and a commitment to making the geometry of meaning legible for critical analysis. They diverge in their object: Manifold Atlas compares output geometries between models, LLMbench reads the surface of model outputs as prose, Theoryscope maps the geometry of a corpus of theoretical texts, and Vectorscope inspects the internals of a single open-weight model.
-
 ## Scholarly Context
 
 Vectorscope emerges from the convergence of three research programmes.

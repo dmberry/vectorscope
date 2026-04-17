@@ -4,7 +4,7 @@
 
 **Author:** David M. Berry
 **Institution:** University of Sussex
-**Version:** 0.2.19
+**Version:** 0.3.0
 **Date:** 17 April 2026
 **Licence:** MIT
 
@@ -55,7 +55,7 @@ Vectorscope is organised as a three-group tab navigation following the pipeline 
 | Trace | **Manifold Formation** | Layer-by-layer PCA animation | How does the manifold emerge through depth? |
 | Critique | **Vocabulary Map** | Global topology of vocabulary | What does the space of all tokens look like? |
 | Critique | **Isotropy Analysis** | Direction concentration per layer | How anisotropic is the representation? |
-| Critique | **Precision Degradation** *(forthcoming)* | Signal degradation across quantisation | What breaks when the medium compresses? |
+| Critique | **Precision Degradation** | Signal degradation across quantisation | What breaks when the medium compresses? |
 
 All operations include a collapsible **Deep Dive** panel with detailed quantitative data for researchers who want to inspect the numbers directly. 3D plots support **Shift+scroll** for fast zoom. Most operations with user inputs expose a **preset chip row** of theoretically-motivated prompts (contested concepts, bias probes, subject-verb agreement traps, Berry's own formulations).
 
@@ -86,7 +86,7 @@ Operations in the Critique group are interpretive rather than descriptive. They 
 
 - **Vocabulary Map.** Global topology of the vocabulary embedding space. 3D scatter with token search and highlight, norm distribution, the whole lexicon in one view.
 - **Isotropy Analysis.** Effective dimensionality and direction concentration per layer. Cosine-similarity histograms at first, middle, and last layer; top-1 / 3 / 10 principal component variance ratios; mean-norm trajectory. Connects directly to the vector-conformism thesis: anisotropic geometries pull concepts toward dominant axes.
-- **Precision Degradation** *(forthcoming, Phase 4).* The Signal Degradation Laboratory implementation. Run the same input through the model at FP32, BF16, FP16, INT8, INT4, FP4, and INT2 and compare activations, hidden states, and output predictions. The operation that most directly realises the Leverhulme bid's methodological commitment.
+- **Precision Degradation.** The Signal Degradation Laboratory in miniature. Runs a prompt through the loaded model at baseline precision and at each selected target (bf16, fp16, int8, int4, int2), comparing hidden states layer-by-layer and final predictions at the output. Uses in-process fake-quantisation via round-to-nearest — no pre-quantised variant is loaded, so all observed differences come from the weights losing grain rather than from a different model. Per-precision summary cards (argmax match, KL divergence, top-K overlap), per-layer cosine and relative-error plots, side-by-side top-5 prediction table. Realises the Leverhulme bid's methodological commitment.
 
 ## General Features
 
@@ -235,7 +235,7 @@ The architecture follows the same pattern as LLMbench and Manifold Atlas: a thin
 - [x] Native-precision loading with transparent down-cast reporting (v0.2.18)
 - [x] HuggingFace cache management from inside the picker (v0.2.18)
 - [x] Editable preset catalogue in `backend/config/models.md` (v0.2.19)
-- [ ] Precision Degradation / Signal Degradation Laboratory (FP32 → BF16 → INT8 → INT4 → FP4 → INT2)
+- [x] Precision Degradation / Signal Degradation Laboratory (v0.3.0)
 - [ ] Dedicated locally-trained model picker (directory chooser, architecture validation)
 - [ ] Annotation system for marking interesting geometric features
 - [ ] Base-model vs embedding-model comparison (generative vs embedding versions of the same backbone)

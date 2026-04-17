@@ -100,6 +100,53 @@ export interface IsotropyResult {
   };
 }
 
+export interface PrecisionLayerMetrics {
+  layer: number;
+  mse: number;
+  relError: number;
+  meanCosine: number;
+  minCosine: number;
+}
+
+export interface PrecisionOutputMetrics {
+  klDivergence: number;
+  argmaxMatch: boolean;
+  argmaxRef: number;
+  argmaxQuant: number;
+  topKOverlap: number;
+  entropyRef: number;
+  entropyQuant: number;
+}
+
+export interface PrecisionPrediction {
+  tokenId: number;
+  token: string;
+  prob: number;
+}
+
+export interface PrecisionSweepEntry {
+  precision: string; // e.g. "int8"
+  label: string;     // short display label, e.g. "int8"
+  bits: number;
+  kind: "float" | "int";
+  layers: PrecisionLayerMetrics[];
+  output: PrecisionOutputMetrics;
+  topPredictions: PrecisionPrediction[];
+}
+
+export interface PrecisionDegradationResult {
+  inputText: string;
+  tokens: string[];
+  tokenIds: number[];
+  numLayers: number;
+  hiddenSize: number;
+  baselineDtype: string;
+  modelSizeBytes: number;
+  memoryWarning: boolean;
+  precisions: PrecisionSweepEntry[];
+  baselineTopPredictions: PrecisionPrediction[];
+}
+
 export interface CachedRepo {
   repoId: string;
   sizeBytes: number;

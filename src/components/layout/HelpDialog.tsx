@@ -54,7 +54,7 @@ export default function HelpDialog() {
                   </div>
                   <div>
                     <dt className="font-semibold">Critique</dt>
-                    <dd className="ml-4">Theoretical instruments. Vocabulary Map and Isotropy Analysis now; Cross-Model Anatomy and Precision Degradation still pending.</dd>
+                    <dd className="ml-4">Theoretical instruments. Vocabulary Map, Isotropy Analysis, and Precision Degradation.</dd>
                   </div>
                 </dl>
               </section>
@@ -105,6 +105,8 @@ export default function HelpDialog() {
                   <div>
                     <dt className="font-semibold">Isotropy Analysis</dt>
                     <dd className="ml-4">Per-layer isotropy, mean pairwise cosine, top principal component variance ratios, and pairwise-cosine histograms at first/middle/last layer. Makes Ethayarajh&apos;s anisotropy collapse visible through depth.</dd>
+                    <dt className="font-semibold">Precision Degradation</dt>
+                    <dd className="ml-4">The Signal Degradation Laboratory in miniature. Runs a prompt at baseline precision and at each selected target (bf16 / fp16 / int8 / int4 / int2), compares hidden states layer-by-layer, and reports prediction changes. In-process fake-quant via round-to-nearest, not a load of a pre-quantised variant.</dd>
                   </div>
                 </dl>
               </section>

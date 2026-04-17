@@ -3,6 +3,8 @@ Vectorscope backend — FastAPI server for model inspection.
 """
 
 import asyncio
+from typing import List, Optional
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -20,6 +22,10 @@ from operations.manifold_formation import get_manifold_formation
 from operations.generation_vector import stream_generation_vector, MAX_GENERATION_TOKENS
 from operations.isotropy import get_isotropy_analysis
 from operations.cache_info import get_cache_info, delete_cached_repo, download_repo
+from operations.precision_degradation import (
+    get_precision_degradation,
+    SUPPORTED_PRECISIONS,
+)
 from config.presets import load_presets
 
 app = FastAPI(title="Vectorscope Backend", version="0.1.0")
@@ -94,6 +100,12 @@ class CacheDeleteRequest(BaseModel):
 
 class CacheDownloadRequest(BaseModel):
     repo_id: str
+
+
+class PrecisionDegradationRequest(BaseModel):
+    text: str
+    precisions: Optional[List[str]] = None
+    top_k: int = 10
 
 
 @app.get("/status")
@@ -276,6 +288,23 @@ async def cache_download(req: CacheDownloadRequest):
     """Pre-stage a repo into the HF cache without loading it into memory."""
     try:
         return await asyncio.to_thread(download_repo, req.repo_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/precision-degradation/config")
+async def precision_degradation_config():
+    return {"supportedPrecisions": SUPPORTED_PRECISIONS}
+
+
+@app.post("/precision-degradation")
+async def precision_degradation(req: PrecisionDegradationRequest):
+    try:
+        return await asyncio.to_thread(
+            get_precision_degradation, req.text, req.precisions, req.top_k
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

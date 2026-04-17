@@ -71,8 +71,21 @@ export default function SettingsDialog() {
                       <span>{backendStatus.model.architecture}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Parameters</span>
-                      <span>{(backendStatus.model.sizeBytes / 1e6).toFixed(0)} MB ({backendStatus.model.dtype})</span>
+                      <span>Size in memory</span>
+                      <span>{(backendStatus.model.sizeBytes / 1e6).toFixed(0)} MB</span>
+                    </div>
+                    <div
+                      className="flex justify-between"
+                      title="Precision at which the weights are currently held in memory. May differ from the model's native precision: fp32 models (e.g. GPT-2) are cast to fp16 on MPS/CUDA to save memory; bf16 models are kept at bf16 when the device supports it."
+                    >
+                      <span>Loaded precision</span>
+                      <span className="font-mono text-xs">
+                        {backendStatus.model.nativeDtype &&
+                        backendStatus.model.nativeDtype !== backendStatus.model.dtype &&
+                        backendStatus.model.nativeDtype !== "unknown"
+                          ? `downcast ${backendStatus.model.nativeDtype}\u2192${backendStatus.model.dtype}`
+                          : backendStatus.model.dtype}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Hidden Size</span>

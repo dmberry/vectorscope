@@ -27,6 +27,7 @@ function parseModelInfo(raw: any): ModelInfo | null {
     numAttentionHeads: raw.num_attention_heads,
     weightTied: raw.weight_tied,
     dtype: raw.dtype,
+    nativeDtype: raw.native_dtype ?? raw.dtype,
     sizeBytes: raw.size_bytes,
     device: raw.device,
   };

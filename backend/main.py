@@ -19,6 +19,7 @@ from operations.attention import get_attention_at_layer, get_attention_head_acro
 from operations.manifold_formation import get_manifold_formation
 from operations.generation_vector import stream_generation_vector, MAX_GENERATION_TOKENS
 from operations.isotropy import get_isotropy_analysis
+from operations.cache_info import get_cache_info, delete_cached_repo, download_repo
 
 app = FastAPI(title="Vectorscope Backend", version="0.1.0")
 
@@ -84,6 +85,14 @@ class GenerationVectorRequest(BaseModel):
 
 class IsotropyRequest(BaseModel):
     text: str
+
+
+class CacheDeleteRequest(BaseModel):
+    repo_id: str
+
+
+class CacheDownloadRequest(BaseModel):
+    repo_id: str
 
 
 @app.get("/status")
@@ -239,6 +248,33 @@ async def isotropy(req: IsotropyRequest):
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/cache")
+async def cache():
+    try:
+        return await asyncio.to_thread(get_cache_info)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/cache/delete")
+async def cache_delete(req: CacheDeleteRequest):
+    try:
+        return await asyncio.to_thread(delete_cached_repo, req.repo_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/cache/download")
+async def cache_download(req: CacheDownloadRequest):
+    """Pre-stage a repo into the HF cache without loading it into memory."""
+    try:
+        return await asyncio.to_thread(download_repo, req.repo_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

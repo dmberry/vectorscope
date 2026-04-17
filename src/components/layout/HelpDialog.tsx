@@ -149,6 +149,72 @@ export default function HelpDialog() {
               </section>
 
               <section>
+                <h3 className="font-display text-heading-sm font-semibold mb-2">How precision works</h3>
+                <p className="mb-2">
+                  Vectorscope tries to load every model at its{" "}
+                  <em>native precision</em> — the numeric format its authors trained and published
+                  it in — so the geometry you inspect is faithful to the weights on disk. Most
+                  modern open-weight models (Qwen, Llama, Mistral) ship in{" "}
+                  <details className="inline-block">
+                    <summary className="inline cursor-pointer underline decoration-dotted decoration-slate/40 hover:decoration-burgundy hover:text-burgundy">
+                      true bfloat16
+                    </summary>
+                    <div className="mt-2 p-3 bg-cream border border-parchment rounded-sm text-caption text-slate space-y-2">
+                      <p>
+                        <strong>bfloat16</strong> (brain floating point, 16-bit) is a numeric format
+                        invented at Google Brain and now the default precision for training and
+                        releasing most modern transformers. It uses 1 bit for the sign, 8 bits for
+                        the exponent, and 7 bits for the mantissa.
+                      </p>
+                      <p>
+                        The trick: bf16 has the <em>same exponent range</em> as float32 (8 bits,
+                        representing numbers from roughly 10⁻³⁸ to 10³⁸) but only 7 bits of
+                        precision. Regular float16 has 5 exponent bits and 10 mantissa bits —{" "}
+                        <em>more precision near zero but a much narrower range</em>. That narrow
+                        range is what causes activations to overflow to infinity or underflow to
+                        zero during training.
+                      </p>
+                      <p>
+                        bf16 trades precision for range. For neural networks that turns out to be
+                        the right trade: gradients can take a very wide range of magnitudes, and a
+                        little rounding error in the mantissa matters less than the ability to
+                        represent very small and very large numbers without overflow. This is why
+                        Qwen, Llama, Mistral, GPT-4-class models all use bf16.
+                      </p>
+                      <p>
+                        Vectorscope keeps bf16 weights in bf16 on Apple Silicon (MPS), NVIDIA
+                        (CUDA), and CPU, so isotropy and precision-degradation analyses run on the
+                        same numerical ground the authors trained on.
+                      </p>
+                    </div>
+                  </details>
+                  ; legacy models like GPT-2 ship in float32.
+                </p>
+                <p className="mb-2">
+                  <strong>Automatic down-cast for non-bf16 models.</strong> When a model's native
+                  precision is not bf16 — GPT-2 is the main case, it's float32 — Vectorscope loads
+                  it as{" "}
+                  <code className="bg-parchment px-1 rounded">float16</code>{" "}
+                  on MPS and CUDA to halve the memory footprint. The Settings panel marks this
+                  with the form{" "}
+                  <code className="bg-parchment px-1 rounded">downcast float32→float16</code>{" "}
+                  so the transformation is visible at a glance. This is a mild, well-understood
+                  precision loss (fp32 → fp16 rounds a few decimal places but preserves the
+                  structure of the geometry). On CPU, float32 is kept as-is.
+                </p>
+                <p>
+                  The Settings panel shows the actual <em>loaded precision</em>, so you'll see{" "}
+                  <code className="bg-parchment px-1 rounded">downcast float32→float16</code>{" "}
+                  for GPT-2 and <code className="bg-parchment px-1 rounded">bfloat16</code>{" "}
+                  for Qwen / Llama / Mistral (kept native). The model-picker modal shows the{" "}
+                  <em>native precision</em>, which is a property of the release, not of your
+                  current session. This distinction matters for the upcoming Precision Degradation
+                  operation, which applies in-process quantisation starting from the loaded
+                  precision as ground truth.
+                </p>
+              </section>
+
+              <section>
                 <h3 className="font-display text-heading-sm font-semibold mb-2">Easter Eggs</h3>
                 <p>
                   Clippy drifts in from the margins every few minutes with a short aphorism on

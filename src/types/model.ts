@@ -12,6 +12,7 @@ export interface ModelInfo {
   numAttentionHeads: number;
   weightTied: boolean;
   dtype: string;
+  nativeDtype: string;
   sizeBytes: number;
   device: string;
 }
@@ -97,6 +98,22 @@ export interface IsotropyResult {
     middle: IsotropyHistogram;
     last: IsotropyHistogram;
   };
+}
+
+export interface CachedRepo {
+  repoId: string;
+  sizeBytes: number;
+  lastAccessed: number | null;
+  lastModified: number | null;
+  nbFiles: number;
+  refs: string[];
+}
+
+export interface CacheInfo {
+  cachePath: string;
+  totalSizeBytes: number;
+  repoCount: number;
+  repos: CachedRepo[];
 }
 
 export type TabGroup = "inspect" | "trace" | "critique";

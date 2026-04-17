@@ -25,6 +25,7 @@ function VectorscopeApp() {
   const { backendStatus, checkBackend } = useModel();
   const [activeGroup, setActiveGroup] = useState<TabGroup>("inspect");
   const [activeTab, setActiveTab] = useState("embedding-table");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const modelLoaded = !!backendStatus.model;
 
   useEffect(() => {
@@ -33,9 +34,19 @@ function VectorscopeApp() {
     return () => clearInterval(interval);
   }, [checkBackend, modelLoaded]);
 
+  // Close the picker on Esc
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPickerOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pickerOpen]);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header onOpenModelPicker={() => setPickerOpen(true)} />
       <TabNav
         activeGroup={activeGroup}
         activeTab={activeTab}
@@ -70,6 +81,21 @@ function VectorscopeApp() {
           </div>
         )}
       </main>
+
+      {/* Model-swap picker overlay — reachable by clicking the model name in the Header */}
+      {pickerOpen && modelLoaded && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 flex items-start justify-center overflow-y-auto py-8"
+          onClick={() => setPickerOpen(false)}
+        >
+          <div onClick={e => e.stopPropagation()} className="w-full">
+            <ModelLoader
+              onLoaded={() => setPickerOpen(false)}
+              onClose={() => setPickerOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
       <StatusBar />
       <Clippy />

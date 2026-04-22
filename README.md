@@ -17,8 +17,8 @@
 
 **Author:** David M. Berry
 **Institution:** University of Sussex
-**Version:** 0.3.1
-**Date:** 17 April 2026
+**Version:** 0.3.2
+**Date:** 23 April 2026
 **Licence:** MIT
 
 
@@ -247,6 +247,8 @@ The architecture follows the same pattern as LLMbench and Manifold Atlas: a thin
 - [x] HuggingFace cache management from inside the picker (v0.2.18)
 - [x] Editable preset catalogue in `backend/config/models.md` (v0.2.19)
 - [x] Precision Degradation / Signal Degradation Laboratory (v0.3.0)
+- [x] Locally-trained model picker with inspect + validate (v0.3.1)
+- [x] Vector Lab branding integration across Header, About, Help, StatusBar (v0.3.2)
 - [ ] Dedicated locally-trained model picker (directory chooser, architecture validation)
 - [ ] Annotation system for marking interesting geometric features
 - [ ] Base-model vs embedding-model comparison (generative vs embedding versions of the same backbone)

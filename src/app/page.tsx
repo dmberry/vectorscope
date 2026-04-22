@@ -47,7 +47,7 @@ function VectorscopeApp() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header onOpenModelPicker={() => setPickerOpen(true)} />
+      <Header onOpenModelPicker={() => setPickerOpen(true)} activeTab={activeTab} />
       <TabNav
         activeGroup={activeGroup}
         activeTab={activeTab}

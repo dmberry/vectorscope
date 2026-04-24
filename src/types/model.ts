@@ -100,6 +100,32 @@ export interface IsotropyResult {
   };
 }
 
+export interface GrammarSteeringLayer {
+  layer: number;
+  steeringNorm: number;
+  positiveMeanNorm: number;
+  negativeMeanNorm: number;
+  separability: number;
+  steeringVector: number[];
+}
+
+export interface GrammarSteeringPca3d {
+  layer: number;
+  positive: [number, number, number][];
+  negative: [number, number, number][];
+  explainedVariance: [number, number, number];
+}
+
+export interface GrammarSteeringResult {
+  numLayers: number;
+  hiddenSize: number;
+  numPairs: number;
+  pcaLayer: number;
+  layers: GrammarSteeringLayer[];
+  pca3d: GrammarSteeringPca3d;
+  pairs: { positive: string; negative: string }[];
+}
+
 export interface LocalModelConfig {
   modelType: string | null;
   architectures: string[];
@@ -221,6 +247,7 @@ export const TAB_GROUPS: Record<TabGroup, { label: string; tabs: TabDef[] }> = {
       { id: "vocabulary-map", label: "Vocabulary Map", group: "critique" },
       { id: "isotropy", label: "Isotropy Analysis", group: "critique" },
       { id: "precision-degradation", label: "Precision Degradation", group: "critique" },
+      { id: "grammar-steering", label: "Grammar Steering", group: "critique" },
     ],
   },
 };

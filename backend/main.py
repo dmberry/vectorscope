@@ -27,6 +27,7 @@ from operations.precision_degradation import (
     SUPPORTED_PRECISIONS,
 )
 from operations.local_model import inspect_local_model
+from operations.grammar_steering import compute_grammar_steering
 from config.presets import load_presets
 
 app = FastAPI(title="Vectorscope Backend", version="0.1.0")
@@ -111,6 +112,16 @@ class PrecisionDegradationRequest(BaseModel):
 
 class LocalModelInspectRequest(BaseModel):
     path: str
+
+
+class ContrastivePair(BaseModel):
+    positive: str
+    negative: str
+
+
+class GrammarSteeringRequest(BaseModel):
+    pairs: List[ContrastivePair]
+    pca_layer: Optional[int] = None
 
 
 @app.get("/status")
@@ -318,6 +329,18 @@ async def precision_degradation(req: PrecisionDegradationRequest):
 async def local_model_inspect(req: LocalModelInspectRequest):
     """Validate a local directory as a loadable HuggingFace model checkpoint."""
     return await asyncio.to_thread(inspect_local_model, req.path)
+
+
+@app.post("/grammar-steering")
+async def grammar_steering(req: GrammarSteeringRequest):
+    """Phase 1 of Grammar Steering: extract per-layer CAA steering vectors."""
+    try:
+        pairs = [p.model_dump() for p in req.pairs]
+        return await asyncio.to_thread(compute_grammar_steering, pairs, req.pca_layer)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/presets")

@@ -17,13 +17,13 @@
 
 **Author:** David M. Berry
 **Institution:** University of Sussex
-**Version:** 0.4.0
-**Date:** 23 April 2026
+**Version:** 0.5.0
+**Date:** 24 April 2026
 **Licence:** MIT
 
 
 
-Vectorscope is a web-based research instrument that enables scholars and researchers to examine the internal geometry of open-weight language models. It loads a model locally, inspects its embedding tables and projection heads, traces token representations through transformer layers, visualises attention patterns, and analyses the material grain of learned geometry. Twelve operations are grouped under three analytical postures: inspect, trace, and critique.
+Vectorscope is a web-based research instrument that enables scholars and researchers to examine the internal geometry of open-weight language models. It loads a model locally, inspects its embedding tables and projection heads, traces token representations through transformer layers, visualises attention patterns, and analyses the material grain of learned geometry. Twelve operations are grouped under three analytical postures: inspect, trace, and critique, including contrastive activation extraction for identifying rhetorical patterns as directions in representation space.
 
 The tool is designed for critical and empirical inquiry into the internal structure of language models, not engineering evaluation. Where existing model-inspection tools (BertViz, TransformerLens, Baukit) focus on mechanistic interpretability for alignment research, Vectorscope treats the vector space as a *medium* to be examined: its grain, its geometry, its ideological affordances.
 
@@ -67,6 +67,7 @@ Vectorscope is organised as a three-group tab navigation following the pipeline 
 | Critique | **Vocabulary Map** | Global topology of vocabulary | What does the space of all tokens look like? |
 | Critique | **Isotropy Analysis** | Direction concentration per layer | How anisotropic is the representation? |
 | Critique | **Precision Degradation** | Signal degradation across quantisation | What breaks when the medium compresses? |
+| Critique | **Grammar Steering** | Contrastive activation vectors for rhetorical patterns | Does the pattern have an identifiable activation signature? |
 
 All operations include a collapsible **Deep Dive** panel with detailed quantitative data for researchers who want to inspect the numbers directly. 3D plots support **Shift+scroll** for fast zoom. Most operations with user inputs expose a **preset chip row** of theoretically-motivated prompts (contested concepts, bias probes, subject-verb agreement traps, Berry's own formulations).
 
@@ -98,6 +99,7 @@ Operations in the Critique group are interpretive rather than descriptive. They 
 - **Vocabulary Map.** Global topology of the vocabulary embedding space. 3D scatter with token search and highlight, norm distribution, the whole lexicon in one view.
 - **Isotropy Analysis.** Effective dimensionality and direction concentration per layer. Cosine-similarity histograms at first, middle, and last layer; top-1 / 3 / 10 principal component variance ratios; mean-norm trajectory. Connects directly to the vector-conformism thesis: anisotropic geometries pull concepts toward dominant axes.
 - **Precision Degradation.** The Signal Degradation Laboratory in miniature. Runs a prompt through the loaded model at baseline precision and at each selected target (bf16, fp16, int8, int4, int2), comparing hidden states layer-by-layer and final predictions at the output. Uses in-process fake-quantisation via round-to-nearest — no pre-quantised variant is loaded, so all observed differences come from the weights losing grain rather than from a different model. Per-precision summary cards (argmax match, KL divergence, top-K overlap), per-layer cosine and relative-error plots, side-by-side top-5 prediction table.
+- **Grammar Steering.** Contrastive Activation Addition (Turner et al. 2023; Rimsky et al. 2024). Takes matched (positive, negative) prompt pairs — positive carries a rhetorical pattern, negative is the same topic without it — and extracts a per-layer steering vector: the mean-activation difference. Per-layer norm trajectory and leave-one-out separability show at which depth the pattern lives; a 3D PCA scatter of the two populations makes the separation visible. Ships with a 12-pair &ldquo;Not X but Y&rdquo; rhetorical-antithesis preset. This is Phase 1 of the Grammar Steering work (extraction and geometry); Phase 2 (forward-pass intervention) is the next development target.
 
 ## General Features
 
@@ -256,6 +258,8 @@ The architecture follows the same pattern as LLMbench and Manifold Atlas: a thin
 - [ ] Base-model vs embedding-model comparison (generative vs embedding versions of the same backbone)
 - [ ] Persistent homology on internal representations
 - [x] Export system: JSON, CSV, PNG, PDF on every operation (v0.4.0)
+- [x] Grammar Steering Phase 1: contrastive activation vector extraction (v0.5.0)
+- [ ] Grammar Steering Phase 2: forward-pass intervention (activation addition during generation)
 - [ ] Packaged distribution (Tauri desktop app, `pipx` / `uvx` CLI, or Docker Compose)
 
 ## Related Work
@@ -268,6 +272,8 @@ The architecture follows the same pattern as LLMbench and Manifold Atlas: a thin
 - Impett, L. and Offert, F. (2026) *Vector Media*. University of Minnesota Press.
 - Marino, M. C. (2020) *Critical Code Studies*. MIT Press.
 - Montfort, N. et al. (2013) *10 PRINT CHR$(205.5+RND(1)); : GOTO 10*. MIT Press.
+- Rimsky, N. et al. (2024) 'Steering Llama 2 via Contrastive Activation Addition'. *arXiv:2312.06681*.
+- Turner, A. et al. (2023) 'Activation Addition: Steering Language Models Without Optimization'. *arXiv:2308.10248*.
 
 ## Acknowledgements
 

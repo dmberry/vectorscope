@@ -20,6 +20,7 @@ import AttentionInspector from "@/components/operations/AttentionInspector";
 import ManifoldFormation from "@/components/operations/ManifoldFormation";
 import IsotropyAnalysis from "@/components/operations/IsotropyAnalysis";
 import PrecisionDegradation from "@/components/operations/PrecisionDegradation";
+import GrammarSteering from "@/components/operations/GrammarSteering";
 import { Clippy } from "@/components/easter-eggs/Clippy";
 
 function VectorscopeApp() {
@@ -73,7 +74,8 @@ function VectorscopeApp() {
             {activeTab === "vocabulary-map" && <VocabularyMap />}
             {activeTab === "isotropy" && <IsotropyAnalysis />}
             {activeTab === "precision-degradation" && <PrecisionDegradation />}
-            {!["embedding-table", "projection-head", "weight-comparison", "token-trajectory", "layer-probe", "full-trace", "generation-vector", "attention", "manifold-formation", "vocabulary-map", "isotropy", "precision-degradation"].includes(activeTab) && (
+            {activeTab === "grammar-steering" && <GrammarSteering />}
+            {!["embedding-table", "projection-head", "weight-comparison", "token-trajectory", "layer-probe", "full-trace", "generation-vector", "attention", "manifold-formation", "vocabulary-map", "isotropy", "precision-degradation", "grammar-steering"].includes(activeTab) && (
               <div className="card-editorial p-4 text-center">
                 <p className="font-sans text-xs text-slate">
                   {activeTab} — coming in a later phase

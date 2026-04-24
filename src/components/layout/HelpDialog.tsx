@@ -130,6 +130,8 @@ export default function HelpDialog() {
                     <dd className="ml-4">Per-layer isotropy, mean pairwise cosine, top principal component variance ratios, and pairwise-cosine histograms at first/middle/last layer. Makes Ethayarajh&apos;s anisotropy collapse visible through depth.</dd>
                     <dt className="font-semibold">Precision Degradation</dt>
                     <dd className="ml-4">The Signal Degradation Laboratory in miniature. Runs a prompt at baseline precision and at each selected target (bf16 / fp16 / int8 / int4 / int2), compares hidden states layer-by-layer, and reports prediction changes. In-process fake-quant via round-to-nearest, not a load of a pre-quantised variant.</dd>
+                    <dt className="font-semibold">Grammar Steering</dt>
+                    <dd className="ml-4">Contrastive Activation Addition (Turner et al. 2023, Rimsky et al. 2024). Takes matched (positive, negative) prompt pairs and extracts a per-layer steering vector for the pattern under study — &ldquo;Not X but Y&rdquo; rhetorical antithesis ships as the default preset. Per-layer norm trajectory, leave-one-out separability, and a 3D PCA scatter make the pattern&apos;s activation signature visible. Phase 1 of the planned Grammar Steering work; Phase 2 (forward-pass intervention) is a separate session.</dd>
                   </div>
                 </dl>
               </section>
